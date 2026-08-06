@@ -1,0 +1,12 @@
+numpy==1.26.4
+pandas==2.2.2
+matplotlib
+seaborn
+scikit-learn
+xgboost
+imbalanced-learn
+shap
+jupyter
+ipykernel
+joblib
+openpyxl
