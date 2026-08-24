@@ -1,27 +1,21 @@
 # Installation Guide
 
-## Windows setup
+This guide explains how to set up and run the MetroPT-3 Predictive Maintenance project on Windows.
 
-1. Extract this ZIP file.
-2. Open the extracted folder in VS Code.
-3. Open Terminal in VS Code.
-4. Run:
+## Requirements
+
+- Windows 10 or Windows 11
+- Python 3.11 recommended
+- Visual Studio Code
+- Git
+- Internet connection for installing packages
+
+## Setup
+
+1. Extract or clone the project folder.
+2. Open the project folder in VS Code.
+3. Open the VS Code terminal.
+4. Run the setup script:
 
 ```bash
 setup_windows.bat
-```
-
-5. Open `notebooks/01_data_audit.ipynb`.
-6. Select kernel: `Python (FYP MetroPT)`.
-7. Run the first test cell.
-
-## If the kernel does not appear
-
-Run this manually in the VS Code terminal:
-
-```bash
-.venv\Scriptsctivate
-python -m ipykernel install --user --name fyp-metropt --display-name "Python (FYP MetroPT)"
-```
-
-Then reopen the notebook and select the kernel again.
