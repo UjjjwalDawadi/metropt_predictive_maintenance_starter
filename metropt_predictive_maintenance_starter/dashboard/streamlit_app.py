@@ -26,10 +26,14 @@ st.set_page_config(
 APP_PATH = Path(__file__).resolve()
 PROJECT_ROOT = APP_PATH.parent.parent
 
-OUTPUT_TABLES_DIR = PROJECT_ROOT / "outputs" / "tables"
-OUTPUT_FIGURES_DIR = PROJECT_ROOT / "outputs" / "figures"
-OUTPUT_PREDICTIONS_DIR = PROJECT_ROOT / "outputs" / "predictions"
-OUTPUT_SHAP_DIR = PROJECT_ROOT / "outputs" / "shap"
+OUTPUT_BASE_DIR = PROJECT_ROOT / "outputs_deploy"
+if not OUTPUT_BASE_DIR.exists():
+    OUTPUT_BASE_DIR = PROJECT_ROOT / "outputs"
+
+OUTPUT_TABLES_DIR = OUTPUT_BASE_DIR / "tables"
+OUTPUT_FIGURES_DIR = OUTPUT_BASE_DIR / "figures"
+OUTPUT_PREDICTIONS_DIR = OUTPUT_BASE_DIR / "predictions"
+OUTPUT_SHAP_DIR = OUTPUT_BASE_DIR / "shap"
 
 FAILURE_EVENTS = pd.DataFrame({
     "event_id": ["F1", "F2", "F3", "F4"],
@@ -1785,7 +1789,7 @@ elif page == "Interactive Alarm Simulator":
     )
 
     if prediction_file is None:
-        st.error("No prediction file found in the outputs/predictions directory.")
+        st.error(f"No prediction file found in the {OUTPUT_PREDICTIONS_DIR} directory.")
         st.stop()
 
     preview = load_csv(str(prediction_file), nrows=5)
@@ -2017,7 +2021,7 @@ elif page == "Timeline Explorer":
     )
 
     if prediction_file is None:
-        st.error("No prediction file found in the outputs/predictions directory.")
+        st.error(f"No prediction file found in the {OUTPUT_PREDICTIONS_DIR} directory.")
         st.stop()
 
     preview = load_csv(str(prediction_file), nrows=5)

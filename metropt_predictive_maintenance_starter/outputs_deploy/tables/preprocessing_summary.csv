@@ -1,0 +1,11 @@
+item,value
+Raw rows,1516948
+Raw columns,17
+Cleaned rows,1516948
+Cleaned columns,17
+Invalid timestamps removed,0
+Duplicate timestamps,0
+Missing before,0
+Missing after,0
+Dataset start,2020-02-01 00:00:00
+Dataset end,2020-09-01 03:59:50

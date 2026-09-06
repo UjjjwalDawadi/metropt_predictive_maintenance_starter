@@ -1,0 +1,10 @@
+task,status
+Split files loaded,Complete
+Models trained,Complete
+Class imbalance settings applied,Complete
+Isolation Forest score direction corrected,Complete
+Training-fitted Isolation Forest score scaling saved,Complete
+Validation predictions saved,Complete
+Test predictions saved,Complete
+Comparison tables saved,Complete
+Feature importance saved,Complete

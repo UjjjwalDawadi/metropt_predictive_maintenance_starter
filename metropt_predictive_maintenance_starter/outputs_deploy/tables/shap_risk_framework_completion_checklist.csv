@@ -1,0 +1,14 @@
+task,status
+Validation and test prediction outputs loaded,True
+Evaluated alarm/risk rule loaded where available,True
+Supervised model loaded for SHAP,True
+SHAP sample created without loading full X_test,True
+SHAP values calculated,True
+Global SHAP importance saved,True
+SHAP summary plot saved,True
+Local TP/FP/FN explanations saved,Complete
+Risk score direction checked,True
+Risk score calibrated using validation data only for diagnostic output,True
+Risk categories assigned using threshold and persistence rule,True
+Final risk predictions saved,True
+Risk distribution plot saved,True

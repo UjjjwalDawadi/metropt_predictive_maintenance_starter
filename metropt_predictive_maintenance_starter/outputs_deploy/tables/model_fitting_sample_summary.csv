@@ -1,0 +1,2 @@
+training_rows_original,training_rows_used_for_fitting,positive_rows_used,normal_rows_used,positive_rate_in_full_training,positive_rate_in_fitting_sample
+875435,50000,7939,42061,0.00906863445030185,0.15878

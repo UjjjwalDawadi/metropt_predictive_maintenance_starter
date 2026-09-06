@@ -1,0 +1,8 @@
+item,value
+Input rows,1516948
+Input columns,17
+Output rows,1516948
+Output columns,116
+New columns added,99
+Sensors,"TP2, TP3, H1, DV_pressure, Reservoirs, Oil_temperature, Motor_current, Caudal_impulses"
+Total missing values,7120

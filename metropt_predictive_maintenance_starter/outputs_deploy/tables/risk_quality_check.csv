@@ -1,0 +1,8 @@
+check,value
+Critical percentage on test set,2.6429329584899164
+High + Critical percentage on test set,3.607102900255314
+Critical records on test set,9213
+High + Critical records on test set,12574
+Risk mapping generated from evaluated threshold and persistence,True
+Critical definition,score crosses selected threshold and selected persistence duration is reached
+Risk mapping status,Pass: Critical no longer dominates; risk mapping is suitable as a prototype decision-support output.

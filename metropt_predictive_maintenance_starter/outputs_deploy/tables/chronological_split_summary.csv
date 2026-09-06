@@ -1,0 +1,9 @@
+item,value
+Input rows,1486994
+Feature columns,115
+Train rows,875435
+Validation rows,262969
+Test rows,348590
+Train warnings,7939
+Validation warnings,4358
+Test warnings,4357

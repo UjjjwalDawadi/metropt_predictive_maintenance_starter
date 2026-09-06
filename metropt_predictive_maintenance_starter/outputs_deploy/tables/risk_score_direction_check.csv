@@ -1,0 +1,9 @@
+item,value
+risk_model,Isolation Forest
+risk_score_column,isolation_forest_score
+validation_positive_mean_raw_score,0.12133276423118539
+validation_negative_mean_raw_score,0.21717293513843464
+score_direction_reversed,True
+validation_score_min_after_direction_check,-0.9826321320349316
+validation_score_max_after_direction_check,-0.013832932811646
+scaling_basis,Validation score range only

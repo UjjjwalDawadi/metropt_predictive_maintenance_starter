@@ -1,0 +1,5 @@
+split,model,score_column,threshold,event_id,failure_start,warning_start,detected,first_alert_time,lead_time_hours,alarm_episodes_in_warning_window
+test,XGBoost,xgboost_score,0.02,F4,2020-07-15 14:30:00,2020-07-15 02:30:00,True,2020-07-15 03:22:19,11.128055555555555,8
+test,Logistic Regression,logistic_regression_score,0.13,F4,2020-07-15 14:30:00,2020-07-15 02:30:00,False,,,0
+test,Isolation Forest,isolation_forest_score,0.01,F4,2020-07-15 14:30:00,2020-07-15 02:30:00,True,2020-07-15 02:30:07,11.998055555555556,1
+test,Random Forest,random_forest_score,0.01,F4,2020-07-15 14:30:00,2020-07-15 02:30:00,True,2020-07-15 02:30:07,11.998055555555556,1

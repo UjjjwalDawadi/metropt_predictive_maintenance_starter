@@ -1,0 +1,15 @@
+item,value
+Risk/alarm model,Isolation Forest
+Risk score column,isolation_forest_score
+Risk selection source,Best final event-level alarm-burden result using validation-derived threshold-persistence rules from Notebook 07B
+Risk threshold,0.41
+Risk persistence duration,5.0
+Model explained using SHAP,Logistic Regression
+SHAP sample size,400
+Top 10 SHAP features,"Motor_current_roll_std_60min, H1_roll_mean_60min, Motor_current_roll_min_60min, H1_roll_std_60min, TP2_roll_std_60min, TP2_roll_mean_60min, Motor_current_roll_mean_60min, Motor_current_roll_min_15min, Reservoirs_roll_std_60min, LPS"
+Risk calibration method,Isotonic regression fitted on validation scores and validation labels.
+Risk band basis,Alarm-informed mapping using validation-selected threshold and persistence rule
+Critical test records percentage,2.6429329584899164
+High/Critical test records,12574
+Risk framework status,Evaluation-based alarm-informed prototype decision-support framework
+Important limitation,Risk categories and actions require validation by qualified maintenance engineers before operational use.

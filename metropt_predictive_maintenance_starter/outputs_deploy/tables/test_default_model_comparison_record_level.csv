@@ -1,0 +1,5 @@
+model,threshold_strategy,precision,recall,f1,f2,pr_auc,roc_auc,true_negative,false_positive,false_negative,true_positive
+Isolation Forest,model contamination threshold,0.0,0.0,0.0,0.0,0.16376474944086286,0.9697805130803615,343137,1096,4357,0
+XGBoost,default 0.50,0.0,0.0,0.0,0.0,0.018843244596884825,0.6651998773180716,344232,1,4357,0
+Random Forest,default 0.50,0.0,0.0,0.0,0.0,0.009375647480611517,0.20822606654990752,343234,999,4357,0
+Logistic Regression,default 0.50,0.0,0.0,0.0,0.0,0.006347472590745738,0.012043352329010309,21016,323217,4357,0

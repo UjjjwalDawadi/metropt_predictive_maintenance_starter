@@ -9,22 +9,35 @@ venv/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data and generated files
+# Raw and processed data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-outputs/figures/*
+
+# Full local outputs - too large for GitHub/Streamlit
+outputs/**
+
+# Keep optional empty output folders only
+!outputs/
+!outputs/figures/
 !outputs/figures/.gitkeep
-outputs/tables/*
+!outputs/tables/
 !outputs/tables/.gitkeep
-outputs/metrics/*
+!outputs/metrics/
 !outputs/metrics/.gitkeep
+
+# Dashboard deployment outputs - keep this for Streamlit
+!outputs_deploy/
+!outputs_deploy/**
 
 # Models
 models/saved_models/
 *.pkl
 *.joblib
+
+# Archives
+*.zip
 
 # System
 .DS_Store

@@ -1,0 +1,10 @@
+setting,value
+threshold_grid,0.01 to 0.99 in 0.01 intervals
+minimum_alarm_duration_minutes,"0, 5, 10, 15, 30, 60"
+merge_gap_minutes,10
+primary_precision_floor,0.15
+relaxed_precision_floor,0.1
+max_false_alarm_episodes_per_day,1.0
+max_alarm_time_percentage,10.0
+selection_basis,"Select alarm rule on validation period only using precision, alarm-burden and F2 trade-off."
+test_period_use,Apply validation-selected rule once to the final chronological test period.

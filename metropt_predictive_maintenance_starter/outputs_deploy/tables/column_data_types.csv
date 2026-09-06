@@ -1,0 +1,18 @@
+column_name,data_type
+Unnamed: 0,int64
+timestamp,object
+TP2,float64
+TP3,float64
+H1,float64
+DV_pressure,float64
+Reservoirs,float64
+Oil_temperature,float64
+Motor_current,float64
+COMP,float64
+DV_eletric,float64
+Towers,float64
+MPG,float64
+LPS,float64
+Pressure_switch,float64
+Oil_level,float64
+Caudal_impulses,float64
