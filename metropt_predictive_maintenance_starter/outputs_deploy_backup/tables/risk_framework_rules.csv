@@ -1,0 +1,6 @@
+risk_level,prototype_rule,recommended_action,important_note
+Normal,score < 0.40 × selected threshold,Continue normal monitoring.,Research prototype only; not an operational railway maintenance rule.
+Low,0.40 × threshold ≤ score < 0.75 × threshold,Continue operation and monitor trend during routine review.,Research prototype only; not an operational railway maintenance rule.
+Medium,0.75 × threshold ≤ score < selected threshold,Increase monitoring and inspect related sensor trends if the pattern continues.,Research prototype only; not an operational railway maintenance rule.
+High,score ≥ selected threshold but selected persistence duration is not reached,Prioritise inspection if the alarm continues or repeats.,Research prototype only; not an operational railway maintenance rule.
+Critical,score ≥ selected threshold and selected persistence duration is reached,Escalate for urgent engineering review.,Research prototype only; not an operational railway maintenance rule.

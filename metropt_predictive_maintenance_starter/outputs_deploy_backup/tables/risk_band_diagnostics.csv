@@ -1,0 +1,14 @@
+item,value
+risk_band_basis,Alarm-informed mapping using validation-selected threshold and persistence rule
+risk_model,Isolation Forest
+risk_score_column,isolation_forest_score
+selected_threshold,0.41
+selected_persistence_minutes,5.0
+normal_low_boundary,0.40 × selected threshold = 0.164000
+low_medium_boundary,0.75 × selected threshold = 0.307500
+medium_high_boundary,selected threshold = 0.410000
+high_critical_boundary,selected threshold + persistence duration = 5.0 minutes
+critical_requires_persistence,True
+band_selection_period,Validation-selected threshold-persistence rule from Notebook 07B where available
+test_period_used_for_band_selection,No
+calibration_note,"Isotonic calibration is retained as a diagnostic score, but final risk category assignment is alarm-informed."

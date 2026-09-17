@@ -1,0 +1,13 @@
+task,status
+Validation predictions loaded from Notebook 06,Complete
+Test predictions loaded from Notebook 06,Complete
+Validation threshold search completed,Complete
+Precision-recall curve saved,Complete
+Selection policy saved,Complete
+Selected thresholds saved,Complete
+Best validation model selected,Complete
+Selected thresholds applied to final test period,Complete
+Test record-level results saved,Complete
+Test event-level results saved,Complete
+Test alarm episodes saved,Complete
+Best validation-selected model timeline saved,Complete

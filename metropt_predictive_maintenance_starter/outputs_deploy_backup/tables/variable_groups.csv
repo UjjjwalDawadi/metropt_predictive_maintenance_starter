@@ -1,0 +1,18 @@
+group,column
+numeric,Unnamed: 0
+numeric,TP2
+numeric,TP3
+numeric,H1
+numeric,DV_pressure
+numeric,Reservoirs
+numeric,Oil_temperature
+numeric,Motor_current
+numeric,COMP
+numeric,DV_eletric
+numeric,Towers
+numeric,MPG
+numeric,LPS
+numeric,Pressure_switch
+numeric,Oil_level
+numeric,Caudal_impulses
+non_numeric_or_datetime,timestamp

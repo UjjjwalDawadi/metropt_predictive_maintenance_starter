@@ -1,0 +1,17 @@
+item,value
+Validation prediction rows,262969
+Test prediction rows,348590
+Models evaluated,"XGBoost, Logistic Regression, Isolation Forest, Random Forest"
+Threshold search range,0.01 to 0.99 in 0.01 intervals
+Threshold selection rule,"validation-only selection; target precision >= 0.15, fallback precision >= 0.1, alarm time <= 10.0%, false alarms/day <= 2.0; ranked by F2, event detection and alarm burden"
+Best validation model,XGBoost
+Best validation threshold,0.02
+Best validation score column,xgboost_score
+Test events evaluated for best model,1
+Test detected events for best model,1
+Test precision for best model,0.015442373978847675
+Test recall for best model,0.5418866192334175
+Test F2 for best model,0.06931111619960192
+Test alarm time percentage for best model,38.106860236146986
+Test false alarm episodes per day for best model,6.699637310079052
+Next step,"Run Notebook 07B alarm-burden sensitivity, then Notebook 08 SHAP/risk framework"

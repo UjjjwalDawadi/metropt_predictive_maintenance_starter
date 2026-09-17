@@ -1,0 +1,14 @@
+item,value
+Purpose,Validation-only alarm-burden sensitivity analysis
+Models evaluated,"Isolation Forest, Logistic Regression, Random Forest, XGBoost"
+Thresholds searched,0.01 to 0.99 in 0.01 intervals
+Persistence durations searched,"0, 5, 10, 15, 30, 60 minutes"
+Primary precision floor,0.15
+Relaxed precision floor,0.1
+False alarm constraint,<= 1.0 false alarm episode per day
+Alarm time constraint,<= 10.0% total alarm time
+Best validation-selected model,XGBoost
+Best validation-selected threshold,0.06
+Best validation-selected persistence duration,15.0 minutes
+Selection tier,burden_constraints_only
+Key dissertation interpretation,The alarm rule was selected from validation-derived rules using an objective-aligned policy that prioritises alarm-burden feasibility before fallback F2 ranking; the final test period is then used once for evaluation.

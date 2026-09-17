@@ -1,0 +1,11 @@
+item,value
+Primary target,warning_12h
+Models trained,"Logistic Regression, Random Forest, Isolation Forest, XGBoost"
+Training rows available,875435
+Training rows used,50000
+Validation rows,262969
+Test rows,348590
+Feature columns,115
+Class imbalance handling,Logistic Regression and Random Forest use class weighting; XGBoost uses scale_pos_weight; Isolation Forest trains on normal rows only.
+Isolation Forest score direction,Higher isolation_forest_score means higher anomaly/warning risk; score scaling fitted on training data only.
+Next step,Run Step 7 threshold selection and event-level evaluation.

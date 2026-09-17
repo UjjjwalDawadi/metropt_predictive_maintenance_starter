@@ -1,0 +1,4 @@
+split,normal_count,warning_count,total_rows,warning_percentage,warning_event_ids
+train,867496,7939,875435,0.906863445030185,"F1, F2"
+validation,258611,4358,262969,1.6572295593777213,F3
+test,344233,4357,348590,1.2498924237643076,F4

@@ -1,0 +1,6 @@
+task,status
+F1-F4 found,Complete
+Train non-empty,Complete
+Validation non-empty,Complete
+Test non-empty,Complete
+Split files saved,Complete

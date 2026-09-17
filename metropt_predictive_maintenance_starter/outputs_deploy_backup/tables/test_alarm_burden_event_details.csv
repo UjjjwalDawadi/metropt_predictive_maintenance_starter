@@ -1,0 +1,5 @@
+split,model,score_column,threshold,min_duration_minutes,event_id,failure_type,warning_start,failure_start,detected,first_alarm_time,lead_time_hours,n_overlapping_alarm_episodes
+test,Isolation Forest,isolation_forest_score,0.41,5.0,F4,Air leak,2020-07-15 02:30:00,2020-07-15 14:30:00,1,2020-07-15 02:30:17,11.995277777777778,1
+test,Logistic Regression,logistic_regression_score,0.54,60.0,F4,Air leak,2020-07-15 02:30:00,2020-07-15 14:30:00,0,,,0
+test,Random Forest,random_forest_score,0.17,10.0,F4,Air leak,2020-07-15 02:30:00,2020-07-15 14:30:00,0,,,0
+test,XGBoost,xgboost_score,0.06,15.0,F4,Air leak,2020-07-15 02:30:00,2020-07-15 14:30:00,0,,,0

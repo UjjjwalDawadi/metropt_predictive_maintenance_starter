@@ -1519,19 +1519,67 @@ prediction_file = read_existing([
     OUTPUT_PREDICTIONS_DIR / "final_risk_predictions_test_set.csv",
     OUTPUT_PREDICTIONS_DIR / "test_predictions_selected_thresholds.csv"
 ])
+validation_model_comparison = load_small_table(
+    str(OUTPUT_TABLES_DIR / "validation_model_comparison_record_level.csv")
+)
 
-validation_model_comparison = load_small_table(str(OUTPUT_TABLES_DIR / "validation_model_comparison_record_level.csv"))
-selected_thresholds = load_small_table(str(OUTPUT_TABLES_DIR / "selected_thresholds_from_validation.csv"))
-best_model_selection = load_small_table(str(OUTPUT_TABLES_DIR / "best_model_selection_from_validation.csv"))
-test_event_results = load_small_table(str(OUTPUT_TABLES_DIR / "test_event_level_results_selected_thresholds.csv"))
-alarm_burden_comparison = load_small_table(str(OUTPUT_TABLES_DIR / "alarm_burden_comparison_original_vs_refined.csv"))
-test_alarm_burden_results = load_small_table(str(OUTPUT_TABLES_DIR / "test_alarm_burden_sensitivity_results.csv"), max_rows=20000)
-selected_alarm_rules = load_small_table(str(OUTPUT_TABLES_DIR / "selected_alarm_burden_rules_validation.csv"), max_rows=2000)
-global_shap = load_small_table(str(OUTPUT_TABLES_DIR / "global_shap_feature_importance.csv"), max_rows=100)
-local_shap = load_small_table(str(OUTPUT_TABLES_DIR / "local_shap_case_explanations.csv"), max_rows=100)
-risk_rules = load_small_table(str(OUTPUT_TABLES_DIR / "risk_framework_rules.csv"), max_rows=200)
-risk_distribution = load_small_table(str(OUTPUT_TABLES_DIR / "risk_level_distribution_test_set.csv"), max_rows=200)
-framework_summary = load_small_table(str(OUTPUT_TABLES_DIR / "shap_risk_framework_summary.csv"), max_rows=200)
+selected_thresholds = load_small_table(
+    str(OUTPUT_TABLES_DIR / "selected_thresholds_from_validation.csv")
+)
+
+# Final validation-selected model/alarm rule from Step 07B
+best_model_selection = load_small_table(
+    str(OUTPUT_TABLES_DIR / "best_refined_alarm_rule_from_validation.csv")
+)
+
+# Fallback only if the refined output is unavailable
+if best_model_selection is None or best_model_selection.empty:
+    best_model_selection = load_small_table(
+        str(OUTPUT_TABLES_DIR / "best_model_selection_from_validation.csv")
+    )
+
+test_event_results = load_small_table(
+    str(OUTPUT_TABLES_DIR / "test_event_level_results_selected_thresholds.csv")
+)
+
+alarm_burden_comparison = load_small_table(
+    str(OUTPUT_TABLES_DIR / "alarm_burden_comparison_original_vs_refined.csv")
+)
+
+test_alarm_burden_results = load_small_table(
+    str(OUTPUT_TABLES_DIR / "test_alarm_burden_sensitivity_results.csv"),
+    max_rows=20000
+)
+
+selected_alarm_rules = load_small_table(
+    str(OUTPUT_TABLES_DIR / "selected_alarm_burden_rules_validation.csv"),
+    max_rows=2000
+)
+
+global_shap = load_small_table(
+    str(OUTPUT_TABLES_DIR / "global_shap_feature_importance.csv"),
+    max_rows=100
+)
+
+local_shap = load_small_table(
+    str(OUTPUT_TABLES_DIR / "local_shap_case_explanations.csv"),
+    max_rows=100
+)
+
+risk_rules = load_small_table(
+    str(OUTPUT_TABLES_DIR / "risk_framework_rules.csv"),
+    max_rows=200
+)
+
+risk_distribution = load_small_table(
+    str(OUTPUT_TABLES_DIR / "risk_level_distribution_test_set.csv"),
+    max_rows=200
+)
+
+framework_summary = load_small_table(
+    str(OUTPUT_TABLES_DIR / "shap_risk_framework_summary.csv"),
+    max_rows=200
+)
 
 validation_summary = get_validation_summary(best_model_selection)
 best_alarm_summary, best_alarm_row = get_best_alarm_summary(test_alarm_burden_results)
@@ -1555,16 +1603,52 @@ if prediction_file:
 else:
     st.sidebar.error("Prediction data unavailable")
 
+# =========================================================
+# DASHBOARD VIEW
+# Presentation simplified for a cleaner operational layout.
+# No modelling / calculation logic changed.
+# =========================================================
+
+
+# -------------------------
+# Sidebar
+# -------------------------
+
+st.sidebar.markdown(
+    """
+    <div class="metro-brand">
+        <div class="metro-brand-title">🚆 MetroPT Dashboard</div>
+        <div class="metro-brand-subtitle">Predictive Maintenance</div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+if prediction_file:
+    st.sidebar.markdown(
+        '<div class="metro-status"><span class="metro-status-dot"></span>System ready</div>',
+        unsafe_allow_html=True
+    )
+else:
+    st.sidebar.error("Prediction data unavailable")
+
 st.sidebar.markdown(
     """
     <div class="side-mini-grid">
-        <div class="side-mini-card"><div class="side-mini-label">Dataset</div><div class="side-mini-value">MetroPT-3</div></div>
-        <div class="side-mini-card"><div class="side-mini-label">Failure mode</div><div class="side-mini-value">Air leak</div></div>
+        <div class="side-mini-card">
+            <div class="side-mini-label">Dataset</div>
+            <div class="side-mini-value">MetroPT-3</div>
+        </div>
+        <div class="side-mini-card">
+            <div class="side-mini-label">Failure mode</div>
+            <div class="side-mini-value">Air leak</div>
+        </div>
     </div>
     <div class="side-section-title">Navigation</div>
     """,
     unsafe_allow_html=True,
 )
+
 page_map = {
     "▦  Overview": "Overview",
     "◫  Model & Alarm Evaluation": "Model and Alarm Evaluation",
@@ -1578,272 +1662,490 @@ selected_page_label = st.sidebar.radio(
     list(page_map.keys()),
     label_visibility="collapsed"
 )
+
 page = page_map[selected_page_label]
 
-st.sidebar.divider()
-with st.sidebar.expander("System & file status", expanded=False):
-    st.caption("Project root")
-    st.code(str(PROJECT_ROOT), language="text")
-    st.caption("Prediction output")
-    if prediction_file:
-        st.success(prediction_file.name)
-    else:
-        st.error("Prediction file not found")
-    st.caption(f"Plotly charts: {'enabled' if PLOTLY_AVAILABLE else 'fallback mode'}")
 
-st.sidebar.caption("Metro compressor · Explainable ML · Event-focused evaluation")
-
-render_hero()
-
+# =========================================================
+# PAGE 1 — OVERVIEW
+# =========================================================
 
 if page == "Overview":
+
     render_section_header(
         "01",
         "Overview",
-        "A high-level operational view of the predictive-maintenance framework, selected model, alarm configuration and documented failure events."
+        "System summary"
     )
 
+    # Main KPIs
     c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        render_kpi_card("Dataset", "MetroPT-3", "▦", "#21d4fd", "Compressor time-series data")
-    with c2:
-        render_kpi_card("Failure mode", "Air leak", "⚠", "#ff5573", "Documented failure type")
-    with c3:
-        render_kpi_card("Validation model", validation_summary["model"], "◆", "#8b5cf6", "Chronological validation selection")
-    with c4:
-        render_kpi_card("Event alarm model", best_alarm_summary["model"], "⚡", "#20d69f", "Highlighted event-level setting")
 
-    st.markdown("#### Framework pipeline")
+    with c1:
+        render_kpi_card(
+            "Dataset",
+            "MetroPT-3",
+            "▦",
+            "#21d4fd"
+        )
+
+    with c2:
+        render_kpi_card(
+            "Failure mode",
+            "Air leak",
+            "⚠",
+            "#ff5573"
+        )
+
+    with c3:
+        render_kpi_card(
+            "Validation model",
+            validation_summary["model"],
+            "◆",
+            "#8b5cf6"
+        )
+
+    with c4:
+        render_kpi_card(
+            "Event alarm model",
+            best_alarm_summary["model"],
+            "⚡",
+            "#20d69f"
+        )
+
+    # Pipeline visual
+    st.markdown("#### Framework Pipeline")
     render_pipeline()
 
-    left, right = st.columns([1.15, 0.85], gap="large")
-    with left:
-        st.markdown(
-            """
-            <div class="insight-card">
-                <div class="insight-label">Project aim</div>
-                <div class="insight-title">Move from timestamp predictions to actionable early-warning decisions</div>
-                <div class="insight-copy">
-                    The dashboard combines time-series preprocessing, early-warning labels, model comparison,
-                    alarm-threshold analysis, persistence rules, event-level evaluation, SHAP explanation and
-                    maintenance-facing risk categorisation. The emphasis is not only whether a record is classified
-                    correctly, but whether a failure event is detected early enough with a manageable alarm burden.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    with right:
-        st.markdown(
-            f"""
-            <div class="insight-card">
-                <div class="insight-label">Operational highlight</div>
-                <div class="insight-title">{best_alarm_summary['events']} events detected at the highlighted alarm setting</div>
-                <div class="insight-copy">
-                    Threshold <b>{best_alarm_summary['threshold']}</b> · persistence <b>{best_alarm_summary['duration']}</b> ·
-                    median lead time <b>{best_alarm_summary['lead_time']}</b> · false alarms <b>{best_alarm_summary['false_alarms']}</b>.
-                    Use the simulator to test how these trade-offs change under alternative settings.
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    # Key settings
+    st.markdown("#### Model & Alarm Settings")
 
-    st.markdown("#### Key model and alarm settings")
     k1, k2, k3, k4 = st.columns(4)
+
     with k1:
-        render_kpi_card("Validation threshold", validation_summary["threshold"], "━", "#3b82f6")
+        render_kpi_card(
+            "Validation threshold",
+            validation_summary["threshold"],
+            "━",
+            "#3b82f6"
+        )
+
     with k2:
-        render_kpi_card("Alarm threshold", best_alarm_summary["threshold"], "━", "#ffbe3f")
+        render_kpi_card(
+            "Alarm threshold",
+            best_alarm_summary["threshold"],
+            "━",
+            "#ffbe3f"
+        )
+
     with k3:
-        render_kpi_card("Persistence duration", best_alarm_summary["duration"], "◷", "#8b5cf6")
+        render_kpi_card(
+            "Persistence",
+            best_alarm_summary["duration"],
+            "◷",
+            "#8b5cf6"
+        )
+
     with k4:
-        render_kpi_card("Median lead time", best_alarm_summary["lead_time"], "⏱", "#20d69f")
+        render_kpi_card(
+            "Lead time",
+            best_alarm_summary["lead_time"],
+            "⏱",
+            "#20d69f"
+        )
 
-    st.info(
-        "Validation-selected record-level performance and the strongest event-level alarm setting are shown separately. "
-        "In rare-event predictive maintenance, the best classifier at record level is not necessarily the most useful alarm configuration operationally."
-    )
+    # Failure timeline
+    st.markdown("#### Failure Timeline")
 
-    st.markdown("#### Failure and warning-window timeline")
     timeline_fig = event_timeline_figure(FAILURE_EVENTS)
+
     if timeline_fig is not None:
-        st.plotly_chart(timeline_fig, width="stretch", config={"displaylogo": False, "scrollZoom": True})
-    else:
-        st.caption("Install Plotly for the interactive failure-event timeline.")
+        st.plotly_chart(
+            timeline_fig,
+            width="stretch",
+            config={
+                "displaylogo": False,
+                "scrollZoom": True
+            }
+        )
 
-    with st.expander("View documented failure-event table", expanded=False):
-        event_display = FAILURE_EVENTS[[
-            "event_id",
-            "failure_type",
-            "failure_start",
-            "failure_end",
-            "warning_12h_start",
-            "warning_12h_end"
-        ]].copy()
-        st.dataframe(event_display, width="stretch", height=220)
+    with st.expander("Failure-event data", expanded=False):
 
-    st.warning(
-        "Decision-support prototype only: operational deployment would require additional external validation, engineering review and controlled testing."
-    )
+        event_display = FAILURE_EVENTS[
+            [
+                "event_id",
+                "failure_type",
+                "failure_start",
+                "failure_end",
+                "warning_12h_start",
+                "warning_12h_end"
+            ]
+        ].copy()
+
+        st.dataframe(
+            event_display,
+            width="stretch",
+            height=220
+        )
+
+
+# =========================================================
+# PAGE 2 — MODEL & ALARM EVALUATION
+# =========================================================
 
 elif page == "Model and Alarm Evaluation":
+
     render_section_header(
         "02",
         "Model and Alarm Evaluation",
-        "Compare record-level model performance with event-level detection, lead time and false-alarm burden — the measures that matter most for early-warning maintenance."
+        "Model and alarm performance"
     )
 
-    model_count = len(validation_model_comparison) if validation_model_comparison is not None else 0
+    model_count = (
+        len(validation_model_comparison)
+        if validation_model_comparison is not None
+        else 0
+    )
+
     m1, m2, m3, m4 = st.columns(4)
+
     with m1:
-        render_kpi_card("Models compared", model_count, "▦", "#21d4fd")
+        render_kpi_card(
+            "Models compared",
+            model_count,
+            "▦",
+            "#21d4fd"
+        )
+
     with m2:
-        render_kpi_card("Validation-selected", validation_summary["model"], "◆", "#8b5cf6")
+        render_kpi_card(
+            "Validation-selected",
+            validation_summary["model"],
+            "◆",
+            "#8b5cf6"
+        )
+
     with m3:
-        render_kpi_card("Event alarm highlight", best_alarm_summary["model"], "⚡", "#ffbe3f")
+        render_kpi_card(
+            "Event alarm model",
+            best_alarm_summary["model"],
+            "⚡",
+            "#ffbe3f"
+        )
+
     with m4:
-        render_kpi_card("Detected events", best_alarm_summary["events"], "✓", "#20d69f")
+        render_kpi_card(
+            "Detected events",
+            best_alarm_summary["events"],
+            "✓",
+            "#20d69f"
+        )
 
-    render_evaluation_guide()
+    tab_perf, tab_alarm, tab_tables = st.tabs(
+        [
+            "Performance",
+            "Alarm Burden",
+            "Tables"
+        ]
+    )
 
-    tab_perf, tab_alarm, tab_tables = st.tabs([
-        "Performance view",
-        "Alarm-burden view",
-        "Detailed tables",
-    ])
+    # -------------------------
+    # Performance
+    # -------------------------
 
     with tab_perf:
-        if test_event_results is not None and not test_event_results.empty:
-            model_col = first_existing_column(test_event_results, ["model", "model_name", "classifier"])
-            rate_col = first_existing_column(test_event_results, ["failure_detection_rate", "event_recall", "recall"])
+
+        if (
+            test_event_results is not None
+            and not test_event_results.empty
+        ):
+
+            model_col = first_existing_column(
+                test_event_results,
+                ["model", "model_name", "classifier"]
+            )
+
+            rate_col = first_existing_column(
+                test_event_results,
+                [
+                    "failure_detection_rate",
+                    "event_recall",
+                    "recall"
+                ]
+            )
 
             if model_col and rate_col:
-                st.markdown("#### Event detection rate by model")
-                fig = event_detection_figure(test_event_results, model_col, rate_col)
+
+                st.markdown(
+                    "#### Event Detection by Model"
+                )
+
+                fig = event_detection_figure(
+                    test_event_results,
+                    model_col,
+                    rate_col
+                )
+
                 if fig is not None:
-                    st.plotly_chart(fig, width="stretch", config={"displaylogo": False})
+
+                    st.plotly_chart(
+                        fig,
+                        width="stretch",
+                        config={"displaylogo": False}
+                    )
+
                 else:
-                    chart_df = test_event_results[[model_col, rate_col]].copy()
-                    chart_df[rate_col] = pd.to_numeric(chart_df[rate_col], errors="coerce")
-                    st.bar_chart(chart_df.set_index(model_col)[rate_col])
 
-        c1, c2 = st.columns(2, gap="large")
-        with c1:
-            st.markdown(
-                """
-                <div class="insight-card">
-                    <div class="insight-label">Why event metrics matter</div>
-                    <div class="insight-title">Accuracy alone can hide rare-event failure behaviour</div>
-                    <div class="insight-copy">A maintenance alarm must detect failure episodes early enough to support intervention. Event detection and lead time therefore complement record-level precision and recall.</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        with c2:
-            st.markdown(
-                f"""
-                <div class="insight-card">
-                    <div class="insight-label">Current highlighted setting</div>
-                    <div class="insight-title">{best_alarm_summary['model']} · threshold {best_alarm_summary['threshold']}</div>
-                    <div class="insight-copy">Persistence {best_alarm_summary['duration']}; median lead time {best_alarm_summary['lead_time']}; false alarms {best_alarm_summary['false_alarms']}.</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+                    chart_df = test_event_results[
+                        [model_col, rate_col]
+                    ].copy()
 
-        show_table(test_event_results, "Test Event-Level Results", height=300, max_rows=100)
+                    chart_df[rate_col] = pd.to_numeric(
+                        chart_df[rate_col],
+                        errors="coerce"
+                    )
+
+                    st.bar_chart(
+                        chart_df
+                        .set_index(model_col)[rate_col]
+                    )
+
+        show_table(
+            test_event_results,
+            "Test Event-Level Results",
+            height=300,
+            max_rows=100
+        )
+
+    # -------------------------
+    # Alarm burden
+    # -------------------------
 
     with tab_alarm:
-        st.markdown("#### Alarm trade-off map")
-        st.caption("Best operational area: move upward for more lead time and leftward for fewer false alarms. Point colour indicates event-detection performance.")
-        tradeoff_fig = alarm_tradeoff_figure(test_alarm_burden_results)
+
+        st.markdown(
+            "#### Alarm Trade-off"
+        )
+
+        tradeoff_fig = alarm_tradeoff_figure(
+            test_alarm_burden_results
+        )
+
         if tradeoff_fig is not None:
-            st.plotly_chart(tradeoff_fig, width="stretch", config={"displaylogo": False})
 
-        top_alarm_settings = prepare_top_alarm_settings(test_alarm_burden_results, max_rows=10)
-        show_table(top_alarm_settings, "Highest-Ranked Alarm Settings", height=320, max_rows=10)
-        show_table(alarm_burden_comparison, "Original vs Refined Alarm-Burden Comparison", height=320, max_rows=100)
+            st.plotly_chart(
+                tradeoff_fig,
+                width="stretch",
+                config={"displaylogo": False}
+            )
 
-        fig_path = OUTPUT_FIGURES_DIR / "test_alarm_burden_original_vs_refined.png"
+        top_alarm_settings = prepare_top_alarm_settings(
+            test_alarm_burden_results,
+            max_rows=10
+        )
+
+        show_table(
+            top_alarm_settings,
+            "Highest-Ranked Alarm Settings",
+            height=320,
+            max_rows=10
+        )
+
+        show_table(
+            alarm_burden_comparison,
+            "Original vs Refined Alarm Burden",
+            height=320,
+            max_rows=100
+        )
+
+        fig_path = (
+            OUTPUT_FIGURES_DIR
+            / "test_alarm_burden_original_vs_refined.png"
+        )
+
         if fig_path.exists():
-            with st.expander("Original static alarm-burden figure", expanded=False):
-                st.image(str(fig_path), caption="Original vs refined alarm burden", width="stretch")
 
-        if selected_alarm_rules is not None and not selected_alarm_rules.empty:
-            with st.expander("Validation-selected alarm rules", expanded=False):
-                show_table(selected_alarm_rules, height=260, max_rows=100)
+            with st.expander(
+                "Static alarm-burden figure",
+                expanded=False
+            ):
+
+                st.image(
+                    str(fig_path),
+                    width="stretch"
+                )
+
+        if (
+            selected_alarm_rules is not None
+            and not selected_alarm_rules.empty
+        ):
+
+            with st.expander(
+                "Validation-selected alarm rules",
+                expanded=False
+            ):
+
+                show_table(
+                    selected_alarm_rules,
+                    height=260,
+                    max_rows=100
+                )
+
+    # -------------------------
+    # Tables
+    # -------------------------
 
     with tab_tables:
-        show_table(validation_model_comparison, "Validation Model Comparison", height=300, max_rows=100)
-        show_table(selected_thresholds, "Selected Thresholds from Validation", height=260, max_rows=100)
-        show_table(test_event_results, "Test Event-Level Results", height=300, max_rows=100)
 
-    
+        show_table(
+            validation_model_comparison,
+            "Validation Model Comparison",
+            height=300,
+            max_rows=100
+        )
+
+        show_table(
+            selected_thresholds,
+            "Selected Thresholds from Validation",
+            height=260,
+            max_rows=100
+        )
+
+        show_table(
+            test_event_results,
+            "Test Event-Level Results",
+            height=300,
+            max_rows=100
+        )
+
+
+# =========================================================
+# PAGE 3 — INTERACTIVE ALARM SIMULATOR
+# =========================================================
 
 elif page == "Interactive Alarm Simulator":
+
     render_section_header(
         "03",
         "Interactive Alarm Simulator",
-        "Tune the score threshold, persistence rule and date range, then immediately inspect the impact on event detection, lead time and false-alarm burden."
+        "Test alarm settings"
     )
 
     if prediction_file is None:
-        st.error(f"No prediction file found in the {OUTPUT_PREDICTIONS_DIR} directory.")
+
+        st.error(
+            f"No prediction file found in "
+            f"{OUTPUT_PREDICTIONS_DIR}."
+        )
+
         st.stop()
 
-    preview = load_csv(str(prediction_file), nrows=5)
+    preview = load_csv(
+        str(prediction_file),
+        nrows=5
+    )
 
     if preview is None:
         st.stop()
 
     all_columns = preview.columns.tolist()
 
-    required_cols = ["timestamp", "y_true", "warning_12h_event_id"]
-    missing_required = [c for c in required_cols if c not in all_columns]
+    required_cols = [
+        "timestamp",
+        "y_true",
+        "warning_12h_event_id"
+    ]
+
+    missing_required = [
+        c
+        for c in required_cols
+        if c not in all_columns
+    ]
 
     if missing_required:
-        st.error(f"Missing required columns in prediction file: {missing_required}")
+
+        st.error(
+            f"Missing required columns: "
+            f"{missing_required}"
+        )
+
         st.stop()
 
-    score_columns = [c for c in all_columns if c.endswith("_score") or c == "risk_score"]
+    score_columns = [
+        c
+        for c in all_columns
+        if c.endswith("_score")
+        or c == "risk_score"
+    ]
 
     if not score_columns:
-        st.error("No score columns found in prediction file.")
+
+        st.error(
+            "No score columns found."
+        )
+
         st.stop()
 
-    min_ts, max_ts = get_prediction_date_range(str(prediction_file))
+    min_ts, max_ts = get_prediction_date_range(
+        str(prediction_file)
+    )
 
     if min_ts is None or max_ts is None:
-        st.error("Could not read timestamp range from prediction file.")
+
+        st.error(
+            "Could not read timestamp range."
+        )
+
         st.stop()
 
     min_date = min_ts.date()
     max_date = max_ts.date()
 
-    default_start = max(min_date, pd.Timestamp("2020-07-14").date())
-    default_end = min(max_date, pd.Timestamp("2020-07-16").date())
+    default_start = max(
+        min_date,
+        pd.Timestamp("2020-07-14").date()
+    )
+
+    default_end = min(
+        max_date,
+        pd.Timestamp("2020-07-16").date()
+    )
 
     if default_start > default_end:
+
         default_start = min_date
-        default_end = min(max_date, min_date + pd.Timedelta(days=2))
+
+        default_end = min(
+            max_date,
+            min_date + pd.Timedelta(days=2)
+        )
 
     model_options = {
-        normalise_name(col.replace("_score", "")): col
+        normalise_name(
+            col.replace("_score", "")
+        ): col
         for col in score_columns
     }
 
-    st.markdown("#### How the alarm simulator works")
-    render_alarm_logic_diagram()
+    # -------------------------
+    # Controls
+    # -------------------------
 
-    with st.form("alarm_recalculation_form"):
-        st.subheader("Simulation Controls")
+    with st.form(
+        "alarm_recalculation_form"
+    ):
+
+        st.subheader(
+            "Simulation Controls"
+        )
 
         c1, c2, c3 = st.columns(3)
 
         default_model_index = (
-            list(model_options.values()).index("isolation_forest_score")
-            if "isolation_forest_score" in model_options.values()
+            list(model_options.values())
+            .index("isolation_forest_score")
+            if "isolation_forest_score"
+            in model_options.values()
             else 0
         )
 
@@ -1853,19 +2155,33 @@ elif page == "Interactive Alarm Simulator":
             index=default_model_index
         )
 
-        selected_score_col = model_options[selected_label]
+        selected_score_col = (
+            model_options[selected_label]
+        )
 
         threshold = c2.slider(
             "Alarm threshold",
             min_value=0.00,
             max_value=1.00,
-            value=0.45 if selected_score_col == "isolation_forest_score" else 0.50,
+            value=(
+                0.45
+                if selected_score_col
+                == "isolation_forest_score"
+                else 0.50
+            ),
             step=0.01
         )
 
         min_duration = c3.selectbox(
-            "Minimum persistent alarm duration",
-            options=[0, 5, 10, 15, 30, 60],
+            "Persistence duration",
+            options=[
+                0,
+                5,
+                10,
+                15,
+                30,
+                60
+            ],
             index=1
         )
 
@@ -1886,171 +2202,447 @@ elif page == "Interactive Alarm Simulator":
         )
 
         max_chart_points = d3.slider(
-            "Max chart points",
+            "Maximum chart points",
             min_value=500,
             max_value=5000,
             value=2000,
             step=500
         )
 
-        run_button = st.form_submit_button("Run simulation")
+        run_button = (
+            st.form_submit_button(
+                "Run Simulation"
+            )
+        )
 
     if start_date > end_date:
-        st.error("Start date cannot be after end date.")
+
+        st.error(
+            "Start date cannot be "
+            "after end date."
+        )
+
         st.stop()
 
     if not run_button:
+
         st.info(
-            "Select the model score, threshold, persistence duration and date range, then click **Run simulation**."
+            "Choose settings and run the simulation."
         )
+
         st.stop()
 
-    progress_bar = st.progress(0, text="Starting simulation...")
+    # -------------------------
+    # Run simulation
+    # -------------------------
+
+    progress_bar = st.progress(
+        0,
+        text="Starting simulation..."
+    )
+
     status_text = st.empty()
 
     try:
-        status_text.info("Step 1/5: Loading selected data range...")
-        progress_bar.progress(10, text="Loading selected data range")
 
-        usecols = tuple(required_cols + [selected_score_col])
+        status_text.info(
+            "Loading data..."
+        )
 
-        selected_data = load_prediction_date_range(
-            str(prediction_file),
-            usecols,
-            str(start_date),
-            str(end_date)
+        progress_bar.progress(
+            10,
+            text="Loading data"
+        )
+
+        usecols = tuple(
+            required_cols
+            + [selected_score_col]
+        )
+
+        selected_data = (
+            load_prediction_date_range(
+                str(prediction_file),
+                usecols,
+                str(start_date),
+                str(end_date)
+            )
         )
 
         if selected_data.empty:
+
             progress_bar.empty()
-            status_text.warning("No data found for the selected date range.")
+
+            status_text.warning(
+                "No data for selected range."
+            )
+
             st.stop()
 
-        status_text.info(f"Step 2/5: Processing {len(selected_data):,} selected records...")
-        progress_bar.progress(35, text="Processing selected records")
-
-        y_sim, episodes = create_persistent_predictions_fast(
-            selected_data,
-            score_col=selected_score_col,
-            threshold=threshold,
-            min_duration_minutes=min_duration
+        progress_bar.progress(
+            35,
+            text="Processing"
         )
 
-        status_text.info("Step 3/5: Calculating detection and alarm-burden metrics...")
-        progress_bar.progress(60, text="Calculating alarm-burden metrics")
+        y_sim, episodes = (
+            create_persistent_predictions_fast(
+                selected_data,
+                score_col=selected_score_col,
+                threshold=threshold,
+                min_duration_minutes=min_duration
+            )
+        )
 
-        summary, event_detail = evaluate_alarm_simulation(selected_data, y_sim, episodes)
+        progress_bar.progress(
+            60,
+            text="Calculating metrics"
+        )
 
-        status_text.info("Step 4/5: Preparing visual outputs...")
-        progress_bar.progress(80, text="Preparing visual outputs")
+        summary, event_detail = (
+            evaluate_alarm_simulation(
+                selected_data,
+                y_sim,
+                episodes
+            )
+        )
 
-        plot_data = selected_data[["timestamp", selected_score_col]].copy()
-        plot_data["simulated_alarm"] = y_sim
-        plot_data = downsample_for_chart(plot_data, max_points=max_chart_points)
-        plot_data = plot_data.set_index("timestamp")
+        progress_bar.progress(
+            80,
+            text="Preparing charts"
+        )
 
-        progress_bar.progress(100, text="Analysis complete")
-        status_text.success("Step 5/5: Analysis complete.")
+        plot_data = selected_data[
+            [
+                "timestamp",
+                selected_score_col
+            ]
+        ].copy()
+
+        plot_data[
+            "simulated_alarm"
+        ] = y_sim
+
+        plot_data = downsample_for_chart(
+            plot_data,
+            max_points=max_chart_points
+        )
+
+        plot_data = (
+            plot_data
+            .set_index("timestamp")
+        )
+
+        progress_bar.progress(
+            100,
+            text="Complete"
+        )
+
+        status_text.empty()
+        progress_bar.empty()
 
     except Exception as exc:
+
         progress_bar.empty()
-        status_text.error(f"Simulation failed: {exc}")
+
+        status_text.error(
+            f"Simulation failed: {exc}"
+        )
+
         st.stop()
 
-    st.markdown("#### Simulation results")
+    # -------------------------
+    # Results
+    # -------------------------
 
-    detection_rate = summary["failure_detection_rate"]
-    detection_delta = None if pd.isna(detection_rate) else f"{detection_rate:.0%} event recall"
+    st.markdown(
+        "#### Simulation Results"
+    )
 
-    m1, m2, m3, m4 = st.columns(4)
+    detection_rate = (
+        summary[
+            "failure_detection_rate"
+        ]
+    )
+
+    detection_delta = (
+        None
+        if pd.isna(detection_rate)
+        else f"{detection_rate:.0%}"
+    )
+
+    m1, m2, m3, m4 = (
+        st.columns(4)
+    )
+
     with m1:
-        render_kpi_card("Events detected", f"{summary['events_detected']}/{summary['events_evaluated']}", "✓", "#20d69f", detection_delta)
+
+        render_kpi_card(
+            "Events detected",
+            (
+                f"{summary['events_detected']}"
+                f"/{summary['events_evaluated']}"
+            ),
+            "✓",
+            "#20d69f",
+            detection_delta
+        )
+
     with m2:
-        render_kpi_card("Median lead time", format_number(summary["median_lead_time_hours"], 2) + " h", "⏱", "#21d4fd")
+
+        render_kpi_card(
+            "Lead time",
+            (
+                format_number(
+                    summary[
+                        "median_lead_time_hours"
+                    ],
+                    2
+                )
+                + " h"
+            ),
+            "⏱",
+            "#21d4fd"
+        )
+
     with m3:
-        render_kpi_card("False alarms/day", format_number(summary["false_alarm_episodes_per_day"], 2), "!", "#ffbe3f")
+
+        render_kpi_card(
+            "False alarms/day",
+            format_number(
+                summary[
+                    "false_alarm_episodes_per_day"
+                ],
+                2
+            ),
+            "!",
+            "#ffbe3f"
+        )
+
     with m4:
-        render_kpi_card("Alarm time", format_number(summary["total_alarm_time_hours"], 2) + " h", "◷", "#8b5cf6")
 
-    m5, m6, m7, m8 = st.columns(4)
+        render_kpi_card(
+            "Alarm time",
+            (
+                format_number(
+                    summary[
+                        "total_alarm_time_hours"
+                    ],
+                    2
+                )
+                + " h"
+            ),
+            "◷",
+            "#8b5cf6"
+        )
+
+    m5, m6, m7, m8 = (
+        st.columns(4)
+    )
+
     with m5:
-        render_kpi_card("Alarm time %", format_number(summary["total_alarm_time_percentage"], 2) + "%", "%", "#ec4899")
+
+        render_kpi_card(
+            "Alarm time %",
+            (
+                format_number(
+                    summary[
+                        "total_alarm_time_percentage"
+                    ],
+                    2
+                )
+                + "%"
+            ),
+            "%",
+            "#ec4899"
+        )
+
     with m6:
-        render_kpi_card("Accepted episodes", str(summary["total_alarm_episodes"]), "▤", "#3b82f6")
+
+        render_kpi_card(
+            "Alarm episodes",
+            str(
+                summary[
+                    "total_alarm_episodes"
+                ]
+            ),
+            "▤",
+            "#3b82f6"
+        )
+
     with m7:
-        render_kpi_card("Precision", format_number(summary["precision"], 3), "P", "#21d4fd")
+
+        render_kpi_card(
+            "Precision",
+            format_number(
+                summary["precision"],
+                3
+            ),
+            "P",
+            "#21d4fd"
+        )
+
     with m8:
-        render_kpi_card("Recall", format_number(summary["recall"], 3), "R", "#20d69f")
 
-    st.caption(
-        f"Rows evaluated: {len(selected_data):,} · "
-        f"rows plotted after downsampling: {len(plot_data):,} · "
-        f"threshold: {threshold:.2f} · persistence: {min_duration} min"
+        render_kpi_card(
+            "Recall",
+            format_number(
+                summary["recall"],
+                3
+            ),
+            "R",
+            "#20d69f"
+        )
+
+    st.markdown(
+        "#### Score & Alarm Activity"
     )
 
-    st.markdown("#### Score, threshold and alarm activity")
     render_signal_legend()
-    score_fig = score_alarm_figure(plot_data, selected_score_col, threshold, selected_data=selected_data)
-    if score_fig is not None:
-        st.plotly_chart(score_fig, width="stretch", config={"displaylogo": False, "scrollZoom": True})
-    else:
-        st.line_chart(plot_data[[selected_score_col]])
 
-    alarm_fig = alarm_episode_figure(plot_data)
-    if alarm_fig is not None:
-        st.plotly_chart(alarm_fig, width="stretch", config={"displaylogo": False})
-    else:
-        st.line_chart(plot_data[["simulated_alarm"]])
-
-    detail_tab, episode_tab = st.tabs(["Event detection detail", "Accepted alarm episodes"])
-    with detail_tab:
-        show_table(event_detail, height=260, max_rows=100)
-    with episode_tab:
-        show_table(episodes, height=340, max_rows=300)
-
-    st.success(
-        "Simulation complete. Adjust the controls above and rerun to compare the operational trade-off between earlier detection and alarm burden."
+    score_fig = score_alarm_figure(
+        plot_data,
+        selected_score_col,
+        threshold,
+        selected_data=selected_data
     )
 
+    if score_fig is not None:
+
+        st.plotly_chart(
+            score_fig,
+            width="stretch",
+            config={
+                "displaylogo": False,
+                "scrollZoom": True
+            }
+        )
+
+    else:
+
+        st.line_chart(
+            plot_data[
+                [selected_score_col]
+            ]
+        )
+
+    alarm_fig = (
+        alarm_episode_figure(
+            plot_data
+        )
+    )
+
+    if alarm_fig is not None:
+
+        st.plotly_chart(
+            alarm_fig,
+            width="stretch",
+            config={
+                "displaylogo": False
+            }
+        )
+
+    else:
+
+        st.line_chart(
+            plot_data[
+                ["simulated_alarm"]
+            ]
+        )
+
+    detail_tab, episode_tab = st.tabs(
+        [
+            "Event Details",
+            "Alarm Episodes"
+        ]
+    )
+
+    with detail_tab:
+
+        show_table(
+            event_detail,
+            height=260,
+            max_rows=100
+        )
+
+    with episode_tab:
+
+        show_table(
+            episodes,
+            height=340,
+            max_rows=300
+        )
+
+
+# =========================================================
+# PAGE 4 — TIMELINE EXPLORER
+# =========================================================
 
 elif page == "Timeline Explorer":
+
     render_section_header(
         "04",
         "Timeline Explorer",
-        "Inspect score trajectories, alarm outputs and labels over any selected time range with hover detail, zoom controls and a range slider."
+        "Sensor-model timeline"
     )
 
     if prediction_file is None:
-        st.error(f"No prediction file found in the {OUTPUT_PREDICTIONS_DIR} directory.")
+
+        st.error(
+            f"No prediction file found in "
+            f"{OUTPUT_PREDICTIONS_DIR}."
+        )
+
         st.stop()
 
-    preview = load_csv(str(prediction_file), nrows=5)
+    preview = load_csv(
+        str(prediction_file),
+        nrows=5
+    )
 
     if preview is None:
         st.stop()
 
-    all_columns = preview.columns.tolist()
+    all_columns = (
+        preview.columns.tolist()
+    )
 
     if "timestamp" not in all_columns:
-        st.error("The prediction file does not contain a timestamp column.")
+
+        st.error(
+            "Timestamp column unavailable."
+        )
+
         st.stop()
 
-    min_ts, max_ts = get_prediction_date_range(str(prediction_file))
+    min_ts, max_ts = (
+        get_prediction_date_range(
+            str(prediction_file)
+        )
+    )
 
-    if min_ts is None or max_ts is None:
-        st.error("Could not read the timestamp range from the prediction file.")
+    if (
+        min_ts is None
+        or max_ts is None
+    ):
+
+        st.error(
+            "Could not read timestamp range."
+        )
+
         st.stop()
 
     min_date = min_ts.date()
     max_date = max_ts.date()
 
     score_columns = [
-        c for c in all_columns
-        if c.endswith("_score") or c == "risk_score"
+        c
+        for c in all_columns
+        if c.endswith("_score")
+        or c == "risk_score"
     ]
 
     alarm_columns = [
-        c for c in all_columns
+        c
+        for c in all_columns
         if "prediction" in c.lower()
         or "alarm_flag" in c.lower()
         or "alarm" in c.lower()
@@ -2059,12 +2651,27 @@ elif page == "Timeline Explorer":
     ]
 
     other_columns = [
-        c for c in all_columns
-        if c not in ["timestamp"] + score_columns + alarm_columns
+        c
+        for c in all_columns
+        if c
+        not in (
+            ["timestamp"]
+            + score_columns
+            + alarm_columns
+        )
     ]
 
-    with st.form("timeline_full_range_form"):
-        st.subheader("Timeline Controls")
+    # -------------------------
+    # Timeline controls
+    # -------------------------
+
+    with st.form(
+        "timeline_full_range_form"
+    ):
+
+        st.subheader(
+            "Timeline Controls"
+        )
 
         d1, d2 = st.columns(2)
 
@@ -2086,42 +2693,67 @@ elif page == "Timeline Explorer":
 
         c1, c2, c3 = st.columns(3)
 
-        selected_score_columns = c1.multiselect(
-            "Score columns to plot",
-            options=score_columns,
-            default=score_columns[:1] if score_columns else []
+        selected_score_columns = (
+            c1.multiselect(
+                "Score columns",
+                options=score_columns,
+                default=(
+                    score_columns[:1]
+                    if score_columns
+                    else []
+                )
+            )
         )
 
-        selected_alarm_columns = c2.multiselect(
-            "Alarm / label columns to plot",
-            options=alarm_columns,
-            default=["y_true"] if "y_true" in alarm_columns else alarm_columns[:1]
+        selected_alarm_columns = (
+            c2.multiselect(
+                "Alarm / labels",
+                options=alarm_columns,
+                default=(
+                    ["y_true"]
+                    if "y_true"
+                    in alarm_columns
+                    else alarm_columns[:1]
+                )
+            )
         )
 
-        selected_extra_columns = c3.multiselect(
-            "Extra columns to include in preview table",
-            options=other_columns,
-            default=[]
+        selected_extra_columns = (
+            c3.multiselect(
+                "Extra columns",
+                options=other_columns,
+                default=[]
+            )
         )
 
         max_chart_points = st.slider(
-            "Maximum chart points after downsampling",
+            "Maximum chart points",
             min_value=500,
             max_value=10000,
             value=3000,
             step=500
         )
 
-        load_timeline = st.form_submit_button("Load timeline")
+        load_timeline = (
+            st.form_submit_button(
+                "Load Timeline"
+            )
+        )
 
     if start_date > end_date:
-        st.error("Start date cannot be after end date.")
+
+        st.error(
+            "Start date cannot be after end date."
+        )
+
         st.stop()
 
     if not load_timeline:
+
         st.info(
-            "Select the required date range and columns, then click **Load timeline**."
+            "Choose the timeline settings and click Load Timeline."
         )
+
         st.stop()
 
     selected_columns = (
@@ -2131,198 +2763,441 @@ elif page == "Timeline Explorer":
         + selected_extra_columns
     )
 
-    selected_columns = list(dict.fromkeys(selected_columns))
+    selected_columns = list(
+        dict.fromkeys(
+            selected_columns
+        )
+    )
 
     if len(selected_columns) == 1:
-        st.warning("Please select at least one score, alarm, label, or extra column.")
+
+        st.warning(
+            "Select at least one data column."
+        )
+
         st.stop()
 
-    progress_bar = st.progress(0, text="Starting timeline load...")
+    progress_bar = st.progress(
+        0,
+        text="Loading timeline..."
+    )
+
     status_text = st.empty()
 
     try:
-        status_text.info("Step 1/4: Reading selected date range and columns...")
-        progress_bar.progress(20, text="Reading selected data")
 
-        timeline = load_prediction_date_range(
-            str(prediction_file),
-            tuple(selected_columns),
-            str(start_date),
-            str(end_date)
+        progress_bar.progress(
+            20,
+            text="Reading data"
+        )
+
+        timeline = (
+            load_prediction_date_range(
+                str(prediction_file),
+                tuple(selected_columns),
+                str(start_date),
+                str(end_date)
+            )
         )
 
         if timeline.empty:
+
             progress_bar.empty()
-            status_text.warning("No timeline data found for the selected range.")
+
+            status_text.warning(
+                "No timeline data found."
+            )
+
             st.stop()
 
-        status_text.info(f"Step 2/4: Loaded {len(timeline):,} rows. Preparing chart data...")
-        progress_bar.progress(50, text="Preparing chart data")
+        progress_bar.progress(
+            50,
+            text="Preparing chart"
+        )
 
         plot_columns = [
-            c for c in selected_score_columns + selected_alarm_columns
+            c
+            for c in (
+                selected_score_columns
+                + selected_alarm_columns
+            )
             if c in timeline.columns
         ]
 
         if not plot_columns:
+
             progress_bar.empty()
-            status_text.warning("No selected chart columns were found in the loaded data.")
+
+            status_text.warning(
+                "No selected chart columns found."
+            )
+
             st.stop()
 
-        plot_data = timeline[["timestamp"] + plot_columns].copy()
-        plot_data = plot_data.dropna(subset=["timestamp"])
+        plot_data = timeline[
+            ["timestamp"]
+            + plot_columns
+        ].copy()
 
-        status_text.info("Step 3/4: Downsampling chart for smoother display...")
-        progress_bar.progress(75, text="Downsampling chart")
+        plot_data = plot_data.dropna(
+            subset=["timestamp"]
+        )
 
-        plot_data = downsample_for_chart(plot_data, max_points=max_chart_points)
-        plot_data = plot_data.set_index("timestamp")
+        progress_bar.progress(
+            75,
+            text="Downsampling"
+        )
 
-        progress_bar.progress(100, text="Timeline loaded")
-        status_text.success("Step 4/4: Timeline ready.")
+        plot_data = (
+            downsample_for_chart(
+                plot_data,
+                max_points=max_chart_points
+            )
+        )
+
+        plot_data = (
+            plot_data
+            .set_index("timestamp")
+        )
+
+        progress_bar.progress(
+            100,
+            text="Complete"
+        )
+
+        progress_bar.empty()
+        status_text.empty()
 
     except Exception as exc:
+
         progress_bar.empty()
-        status_text.error(f"Timeline loading failed: {exc}")
+
+        status_text.error(
+            f"Timeline loading failed: {exc}"
+        )
+
         st.stop()
 
-    st.caption(
-        f"Date range: {start_date} to {end_date}. "
-        f"Rows loaded: {len(timeline):,}. "
-        f"Rows plotted after downsampling: {len(plot_data):,}."
-    )
-
     if selected_score_columns:
+
         available_score_cols = [
-            c for c in selected_score_columns
+            c
+            for c in selected_score_columns
             if c in plot_data.columns
         ]
 
         if available_score_cols:
-            st.markdown("#### Score timeline")
-            score_timeline_fig = multiseries_timeline_figure(plot_data, available_score_cols)
+
+            st.markdown(
+                "#### Score Timeline"
+            )
+
+            score_timeline_fig = (
+                multiseries_timeline_figure(
+                    plot_data,
+                    available_score_cols
+                )
+            )
+
             if score_timeline_fig is not None:
-                st.plotly_chart(score_timeline_fig, width="stretch", config={"displaylogo": False, "scrollZoom": True})
+
+                st.plotly_chart(
+                    score_timeline_fig,
+                    width="stretch",
+                    config={
+                        "displaylogo": False,
+                        "scrollZoom": True
+                    }
+                )
+
             else:
-                st.line_chart(plot_data[available_score_cols])
+
+                st.line_chart(
+                    plot_data[
+                        available_score_cols
+                    ]
+                )
 
     if selected_alarm_columns:
+
         available_alarm_cols = [
-            c for c in selected_alarm_columns
+            c
+            for c in selected_alarm_columns
             if c in plot_data.columns
         ]
 
         if available_alarm_cols:
-            st.markdown("#### Alarm and label timeline")
-            alarm_timeline_fig = alarm_timeline_figure(plot_data, available_alarm_cols)
+
+            st.markdown(
+                "#### Alarm & Label Timeline"
+            )
+
+            alarm_timeline_fig = (
+                alarm_timeline_figure(
+                    plot_data,
+                    available_alarm_cols
+                )
+            )
+
             if alarm_timeline_fig is not None:
-                st.plotly_chart(alarm_timeline_fig, width="stretch", config={"displaylogo": False, "scrollZoom": True})
-            else:
-                st.line_chart(plot_data[available_alarm_cols])
 
-    with st.expander("Loaded timeline data preview", expanded=False):
-        st.dataframe(timeline.head(300), width="stretch", height=360)
-
-    st.success(
-        "Timeline visualisation completed. Use drag-to-zoom, hover values and the range slider to inspect specific operating periods."
-    )
-
-
-elif page == "Explainability and Risk Framework":
-    render_section_header(
-        "05",
-        "Explainability and Risk Framework",
-        "Translate model behaviour into interpretable feature contributions and maintenance-facing risk categories without treating explanation as physical causality."
-    )
-
-    global_tab, local_tab, risk_tab = st.tabs([
-        "Global explainability",
-        "Local case explanations",
-        "Maintenance risk",
-    ])
-
-    with global_tab:
-        st.markdown("#### Global SHAP feature importance")
-        shap_fig = global_shap_figure(global_shap)
-        if shap_fig is not None:
-            st.plotly_chart(shap_fig, width="stretch", config={"displaylogo": False})
-
-        show_table(global_shap, "Top Global SHAP Features", height=300, max_rows=50)
-
-        shap_bar_path = read_existing([
-            OUTPUT_FIGURES_DIR / "global_shap_top_features.png",
-            OUTPUT_SHAP_DIR / "global_shap_top_features.png"
-        ])
-        shap_summary_path = read_existing([
-            OUTPUT_FIGURES_DIR / "shap_summary_plot.png",
-            OUTPUT_SHAP_DIR / "shap_summary_plot.png"
-        ])
-
-        with st.expander("Original saved SHAP figures", expanded=False):
-            c1, c2 = st.columns(2, gap="large")
-            with c1:
-                if shap_bar_path:
-                    st.image(str(shap_bar_path), caption="Global SHAP Top Features", width="stretch")
-                else:
-                    st.info("Global SHAP feature plot not found.")
-            with c2:
-                if shap_summary_path:
-                    st.image(str(shap_summary_path), caption="SHAP Summary Plot", width="stretch")
-                else:
-                    st.info("SHAP summary plot not found.")
-
-        st.warning(
-            "SHAP describes how the trained model uses features to form predictions. It should not be interpreted as direct proof of physical or engineering causality."
-        )
-
-    with local_tab:
-        st.markdown("#### Local prediction explanations")
-        st.write(
-            "Use the local explanation table to inspect which features pushed individual cases toward higher or lower predicted risk."
-        )
-        show_table(local_shap, "Local SHAP Case Explanations", height=430, max_rows=100)
-
-    with risk_tab:
-        st.markdown("#### Risk-level decision support")
-        render_risk_legend()
-
-        if risk_distribution is not None and not risk_distribution.empty:
-            c1, c2 = st.columns([1.05, 0.95], gap="large")
-            with c1:
-                risk_fig = risk_distribution_figure(risk_distribution)
-                if risk_fig is not None:
-                    st.plotly_chart(risk_fig, width="stretch", config={"displaylogo": False})
-                else:
-                    risk_plot = risk_distribution.copy()
-                    if "risk_level" in risk_plot.columns and "count" in risk_plot.columns:
-                        risk_plot["display_level"] = risk_plot["risk_level"].apply(risk_badge)
-                        st.bar_chart(risk_plot.set_index("display_level")["count"])
-
-            with c2:
-                st.markdown(
-                    """
-                    <div class="insight-card">
-                        <div class="insight-label">Decision-support interpretation</div>
-                        <div class="insight-title">Risk categories convert model output into maintenance language</div>
-                        <div class="insight-copy">
-                            The risk framework is a communication layer for triage and prioritisation. It should be used together with alarm persistence, event context, explainability and engineering judgement rather than as a standalone automated maintenance instruction.
-                        </div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
+                st.plotly_chart(
+                    alarm_timeline_fig,
+                    width="stretch",
+                    config={
+                        "displaylogo": False,
+                        "scrollZoom": True
+                    }
                 )
 
-        show_table(risk_rules, "Risk Framework Rules", height=280, max_rows=100)
-        show_table(risk_distribution, "Risk Distribution Table", height=240, max_rows=100)
+            else:
 
-        fig_path = OUTPUT_FIGURES_DIR / "risk_level_distribution_test_set.png"
-        if fig_path.exists():
-            with st.expander("Static risk-distribution figure", expanded=False):
-                st.image(str(fig_path), caption="Risk-Level Distribution", width="stretch")
+                st.line_chart(
+                    plot_data[
+                        available_alarm_cols
+                    ]
+                )
 
-        show_table(framework_summary, "SHAP and Risk Framework Summary", height=300, max_rows=100)
+    with st.expander(
+        "Data Preview",
+        expanded=False
+    ):
 
-        st.info(
-            "The maintenance risk framework is a decision-support layer: it translates model outputs into categories that can be reviewed alongside the underlying evidence."
+        st.dataframe(
+            timeline.head(300),
+            width="stretch",
+            height=360
         )
 
+
+# =========================================================
+# PAGE 5 — EXPLAINABILITY & RISK
+# =========================================================
+
+elif page == "Explainability and Risk Framework":
+
+    render_section_header(
+        "05",
+        "Explainability and Risk",
+        "SHAP and maintenance risk"
+    )
+
+    global_tab, local_tab, risk_tab = (
+        st.tabs(
+            [
+                "Global SHAP",
+                "Local SHAP",
+                "Maintenance Risk"
+            ]
+        )
+    )
+
+    # -------------------------
+    # Global SHAP
+    # -------------------------
+
+    with global_tab:
+
+        st.markdown(
+            "#### Global SHAP Feature Importance"
+        )
+
+        shap_fig = (
+            global_shap_figure(
+                global_shap
+            )
+        )
+
+        if shap_fig is not None:
+
+            st.plotly_chart(
+                shap_fig,
+                width="stretch",
+                config={
+                    "displaylogo": False
+                }
+            )
+
+        show_table(
+            global_shap,
+            "Top Global SHAP Features",
+            height=300,
+            max_rows=50
+        )
+
+        shap_bar_path = read_existing(
+            [
+                OUTPUT_FIGURES_DIR
+                / "global_shap_top_features.png",
+
+                OUTPUT_SHAP_DIR
+                / "global_shap_top_features.png"
+            ]
+        )
+
+        shap_summary_path = read_existing(
+            [
+                OUTPUT_FIGURES_DIR
+                / "shap_summary_plot.png",
+
+                OUTPUT_SHAP_DIR
+                / "shap_summary_plot.png"
+            ]
+        )
+
+        with st.expander(
+            "Saved SHAP Figures",
+            expanded=False
+        ):
+
+            c1, c2 = st.columns(
+                2,
+                gap="large"
+            )
+
+            with c1:
+
+                if shap_bar_path:
+
+                    st.image(
+                        str(shap_bar_path),
+                        width="stretch"
+                    )
+
+            with c2:
+
+                if shap_summary_path:
+
+                    st.image(
+                        str(shap_summary_path),
+                        width="stretch"
+                    )
+
+        st.caption(
+            "SHAP represents model attribution, not physical causality."
+        )
+
+    # -------------------------
+    # Local SHAP
+    # -------------------------
+
+    with local_tab:
+
+        st.markdown(
+            "#### Local Prediction Explanations"
+        )
+
+        show_table(
+            local_shap,
+            "Local SHAP Cases",
+            height=430,
+            max_rows=100
+        )
+
+    # -------------------------
+    # Risk
+    # -------------------------
+
+    with risk_tab:
+
+        st.markdown(
+            "#### Risk-Level Distribution"
+        )
+
+        render_risk_legend()
+
+        if (
+            risk_distribution is not None
+            and not risk_distribution.empty
+        ):
+
+            risk_fig = (
+                risk_distribution_figure(
+                    risk_distribution
+                )
+            )
+
+            if risk_fig is not None:
+
+                st.plotly_chart(
+                    risk_fig,
+                    width="stretch",
+                    config={
+                        "displaylogo": False
+                    }
+                )
+
+            else:
+
+                risk_plot = (
+                    risk_distribution.copy()
+                )
+
+                if (
+                    "risk_level"
+                    in risk_plot.columns
+                    and "count"
+                    in risk_plot.columns
+                ):
+
+                    risk_plot[
+                        "display_level"
+                    ] = (
+                        risk_plot[
+                            "risk_level"
+                        ]
+                        .apply(risk_badge)
+                    )
+
+                    st.bar_chart(
+                        risk_plot
+                        .set_index(
+                            "display_level"
+                        )["count"]
+                    )
+
+        show_table(
+            risk_rules,
+            "Risk Framework Rules",
+            height=280,
+            max_rows=100
+        )
+
+        show_table(
+            risk_distribution,
+            "Risk Distribution",
+            height=240,
+            max_rows=100
+        )
+
+        fig_path = (
+            OUTPUT_FIGURES_DIR
+            / "risk_level_distribution_test_set.png"
+        )
+
+        if fig_path.exists():
+
+            with st.expander(
+                "Static Risk Figure",
+                expanded=False
+            ):
+
+                st.image(
+                    str(fig_path),
+                    width="stretch"
+                )
+
+        with st.expander(
+            "Framework Summary",
+            expanded=False
+        ):
+
+            show_table(
+                framework_summary,
+                height=300,
+                max_rows=100
+            )
+
+        st.caption(
+            "Prototype decision-support categories; engineering validation is required before operational use."
+        )

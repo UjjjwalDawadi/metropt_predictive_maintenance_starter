@@ -1,0 +1,5 @@
+model,model_file,model_type
+Logistic Regression,c:\Users\user\Desktop\metropt_predictive_maintenance_starter\metropt_predictive_maintenance_starter\models\logistic_regression_model.joblib,supervised
+Random Forest,c:\Users\user\Desktop\metropt_predictive_maintenance_starter\metropt_predictive_maintenance_starter\models\random_forest_model.joblib,supervised
+Isolation Forest,c:\Users\user\Desktop\metropt_predictive_maintenance_starter\metropt_predictive_maintenance_starter\models\isolation_forest_model.joblib,anomaly
+XGBoost,c:\Users\user\Desktop\metropt_predictive_maintenance_starter\metropt_predictive_maintenance_starter\models\xgboost_model.joblib,supervised

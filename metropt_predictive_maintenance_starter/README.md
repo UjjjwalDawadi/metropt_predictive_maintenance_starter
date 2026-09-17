@@ -329,4 +329,8 @@ This repository was developed as part of an MSc Data Science dissertation.
 **Author:** Ujjwal Dawadi  
 **Year:** 2026
 
+<<<<<<< HEAD
 The software and dashboard are intended for research and demonstration purposes and should not be interpreted as a safety-certified railway maintenance system.
+=======
+The software and dashboard are intended for research and demonstration purposes and should not be interpreted as a safety-certified railway maintenance system.
+>>>>>>> c61d89b3df9d0dd5d849cfed895f6c2e36006c3c

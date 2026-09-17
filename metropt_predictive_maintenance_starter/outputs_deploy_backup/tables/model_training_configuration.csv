@@ -1,0 +1,5 @@
+model,imbalance_handling,main_parameters
+Logistic Regression,class_weight=balanced,"C=1.0, solver=liblinear, max_iter=1000"
+Random Forest,class_weight=balanced_subsample,"n_estimators=50, max_depth=12, min_samples_leaf=5, max_features=sqrt"
+XGBoost,scale_pos_weight=5.298,"n_estimators=80, learning_rate=0.05, max_depth=4"
+Isolation Forest,trained on normal training rows only,"n_estimators=150, contamination=0.00907, score scaling fitted on training data only"

@@ -1,0 +1,10 @@
+item,value
+Threshold selection data,Validation period only
+Threshold grid,0.01 to 0.99 in 0.01 intervals
+Target precision floor,0.15
+Fallback precision floor,0.1
+Alarm time limit,10.0%
+False alarm episodes/day limit,2.0
+Minimum alarm duration,5 minutes
+Ranking metric,"F2 first, then event detection, precision, recall and alarm burden"
+Final test usage,Final chronological test used only after threshold selection

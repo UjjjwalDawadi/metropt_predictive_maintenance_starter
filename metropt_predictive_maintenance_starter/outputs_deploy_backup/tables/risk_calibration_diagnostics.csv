@@ -1,0 +1,11 @@
+item,value
+calibration_method,Isotonic regression fitted on validation scores and validation labels.
+calibration_fit_period,Validation period only
+score_used,isolation_forest_score
+test_period_used_for_calibration,No
+validation_labels_available,"0, 1"
+validation_calibrated_min,0.0
+validation_calibrated_max,0.06984334203655354
+test_calibrated_min,0.0
+test_calibrated_max,0.06984334203655354
+interpretation_note,Calibrated score is used for prototype risk ranking; it is not an operational failure probability.

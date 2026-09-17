@@ -1,0 +1,10 @@
+task,status
+Loaded validation and test predictions from Notebook 06,True
+Used validation data for threshold and persistence selection,True
+Applied selected rules to final test data only after selection,True
+Saved validation sensitivity search,True
+Saved selected alarm rules,True
+Saved final test alarm-burden results,True
+Saved prediction file for dashboard,True
+Saved figures for report/dashboard,True
+Avoided test-period tuning in rule selection,True
